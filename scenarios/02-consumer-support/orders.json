@@ -1,0 +1,19 @@
+{
+  "version": "2026-10-12",
+  "orders": [
+    {
+      "orderId": "AG-1001",
+      "product": "Agora Voice Hub",
+      "status": "delivered",
+      "warrantyStatus": "in_warranty",
+      "supportPath": "Collect the fault description and offer a warranty support request."
+    },
+    {
+      "orderId": "AG-1002",
+      "product": "Agora Meeting Mic",
+      "status": "delivered",
+      "warrantyStatus": "expired",
+      "supportPath": "Offer troubleshooting guidance and human support for paid repair options."
+    }
+  ]
+}

@@ -6,6 +6,14 @@
 
 Build a production-style voice agent in minutes with Next.js and the Agora Conversational AI Engine, including voice agent visualizer ([Agent UIKit](https://agoraio-conversational-ai.github.io/agent-uikit/)), live transcript, and real-time pipeline latency via `AGENT_METRICS` ([Agent Toolkit](https://github.com/AgoraIO-Conversational-AI/agent-client-toolkit-ts)).
 
+## Scenario 02: Aster power adapter support
+
+This derivative uses the fictional Aster brand for laptop power adapter warranty enquiries and missing parts in replacement packages. It supports Aster Note 15 and the Aster Power 65 adapter set, with one-step external checks, correction/accessibility instructions, local order facts, and human follow-up recommendations. Product instructions and fixed records live in [`scenarios/02-consumer-support`](scenarios/02-consumer-support/README.md).
+
+Try "My Aster power adapter stopped working; order AG-1001" or "My replacement is missing the wall cord; order AG-1003". AG-1001 is covered, AG-1002 is expired, and AG-1003 has a delivered replacement recorded without its expected wall power cord. No warranty duration or service price is defined. Actual repair, replacement, missing-part submission, ticket, callback, and transfer operations are not implemented.
+
+Default sessions use inline local records. The existing optional `TOP_TEN_SCENARIO_TOOL_BASE_URL` switches to read-only HTTP lookup for an already cloud-reachable endpoint and omits inline records. No MCP, external knowledge base, or tunnel is required. Run `pnpm run verify:scenario` and `pnpm run verify` for local checks; actual speech, corrections, accessibility and RTC operation still require a real call.
+
 ## Prerequisites
 
 - [Node.js 22+](https://nodejs.org/en/download/)
@@ -198,3 +206,10 @@ Please do **not** open public issues for security reports. Email security@agora.
 ## License
 
 Released under the [MIT License](./LICENSE).
+
+
+## Local conversation and optional tools
+
+Default conversations retain the existing Aster support instructions and exact-match local order records. A configured public HTTPS tool origin enables read-only lookup and omits inline orders; lookup failure must never fall back to fixed orders.
+
+TOP_TEN_SCENARIO_TOOL_BASE_URL is optional. Only an explicitly configured public HTTPS endpoint enables tools; malformed, HTTP, localhost and local/private origins leave tools disabled. URL validation does not prove network reachability. No tunnel, knowledge base or database is needed for the default conversation. Local checks do not establish live speech or cloud callback acceptance.

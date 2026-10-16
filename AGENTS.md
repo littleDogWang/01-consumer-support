@@ -2,6 +2,26 @@
 
 This guide is for coding agents making changes in `agent-quickstart-nextjs`.
 
+## Shared scenario UI requirements
+
+These three requirements apply to every scenario and are mandatory for UI implementation and acceptance:
+
+1. **Use a scenario-specific initial Dialog**: its title, description, primary action, loading/error messages and accessibility labels must explain the current scenario. Use a task-specific action instead of a generic Start Conversation entry.
+2. **Keep the scenario identity visible**: after closing the initial Dialog, the scenario name, identifier and short purpose must remain visible in the desktop and mobile interface. Activity status must not replace the scenario name.
+3. **Use our UIkit components**: adopt actual component source and the accompanying theme/styles from [shczhen/agent-ui](https://github.com/shczhen/agent-ui), connected to real session data and actions. A visual imitation or continued use of the previous UIkit alone does not satisfy this requirement.
+
+Inspect the rendered initial Dialog and main interface, and verify actual UIkit component usage. Each scenario plan specifies its own copy, identity and component mapping.
+
+The shared specification lives at `scenario-repos/SCENARIO_UI_RULES.md` in the workspace (`../SCENARIO_UI_RULES.md` relative to this file). This section contains all three minimum requirements and remains usable when the repository is cloned independently. Synchronize this section across repositories when shared rules change. Identify the 00 base scenario as a basic voice demo.
+
+## Repository language
+
+Use English for repository content, including documentation, code comments, UI copy and examples. Keep future additions and edits free of Chinese text.
+
+## Scenario 02 runtime
+
+This derivative uses the fictional Aster brand and supports only the Aster Note 15 laptop with its Aster Power 65 adapter set. Maintain adapter fault and missing-replacement-part flows in `scenarios/02-consumer-support/product.ts`, Agent behavior/greeting in `config.ts`, and fixed orders/replacement contents in `orders.json`. Default prompts use inline records. When the existing HTTP lookup tool is configured, omit inline records and require successful responses. Keep warranty, original delivery, replacement shipment status, expected/shipped contents, and customer reports separate. No warranty duration or repair price is defined. Stop unsafe powered checks and respect correction/accessibility requests and immediate human-help requests. No after-sales write, shipment, callback or actual transfer is implemented. Do not introduce MCP, external knowledge bases, or tunnels. Verify both invite modes, all three order records, and replacement contents; local checks do not replace live voice/RTC acceptance.
+
 ## How to Load
 
 This repository uses progressive disclosure documentation. Docs live under `docs/ai/` in three levels.
@@ -219,3 +239,10 @@ Before finishing a change:
 | fix docs        | Close findings from a docs review or test run                |
 
 The generator and tester live in the [AgoraIO-Community/ai-devkit](https://github.com/AgoraIO-Community/ai-devkit) skill set. See the [progressive disclosure standard](https://github.com/AgoraIO-Community/ai-devkit/blob/main/docs/progressive-disclosure-standard.md) for the full specification.
+
+
+## Local conversation and optional tools
+
+Default conversations retain the existing Aster support instructions and exact-match local order records. A configured public HTTPS tool origin enables read-only lookup and omits inline orders; lookup failure must never fall back to fixed orders.
+
+TOP_TEN_SCENARIO_TOOL_BASE_URL is optional. Only an explicitly configured public HTTPS endpoint enables tools; malformed, HTTP, localhost and local/private origins leave tools disabled. URL validation does not prove network reachability. No tunnel, knowledge base or database is needed for the default conversation. Local checks do not establish live speech or cloud callback acceptance.

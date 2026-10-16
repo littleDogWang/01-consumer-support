@@ -6,14 +6,11 @@
 
 All of the managed agent configuration is built in `app/api/invite-agent/route.ts`. The route receives `{ requester_id, channel_name }` from `LandingPage`, constructs an `Agent` from `agora-agents`, and starts a session bound to the requester's RTC channel.
 
-## Top-Level Constants
+## Scenario Prompt and Greeting
 
-| Constant            | Default                                              | Purpose                                                   |
-| ------------------- | ---------------------------------------------------- | --------------------------------------------------------- |
-| `ADA_PROMPT`        | Long-form instructions for "Ada", an Agora assistant | The system prompt for the LLM.                            |
-| `GREETING`          | Friendly first line                                   | Spoken on session start.                                 |
+`scenarios/02-consumer-support/config.ts` defines the Aster adapter support role, workflow, guardrails, and greeting. `product.ts` supplies local product and troubleshooting instructions, and `orders.json` supplies fixed warranty records and optional replacement shipment contents. `getScenarioPrompt(scenario.id, scenarioTools.length > 0)` formats the instructions for the selected lookup mode.
 
-Agent behavior is configured in code: edit `GREETING` or `ADA_PROMPT` directly.
+The default inline mode includes both sample orders and does not register external tools. When `TOP_TEN_SCENARIO_TOOL_BASE_URL` is configured, the route registers the existing read-only HTTP lookup tool, omits inline orders, and requires successful tool results. Neither mode adds MCP or external knowledge-base dependencies.
 
 ## The Agent Builder Chain
 
@@ -23,9 +20,8 @@ Agent behavior is configured in code: edit `GREETING` or `ADA_PROMPT` directly.
 const client = new AgoraClient({ area: Area.US, appId, appCertificate });
 
 const agent = new Agent({
-  name: `conversation-${Date.now()}-${randomHex}`,
-  instructions: ADA_PROMPT,
-  greeting: GREETING,
+  instructions: getScenarioPrompt(scenario.id, scenarioTools.length > 0),
+  greeting: scenario.greeting,
   failureMessage: 'Please wait a moment.',
   maxHistory: 50,
   turnDetection: {
@@ -35,7 +31,7 @@ const agent = new Agent({
       end_of_speech:   { /* VAD on-end params */ },
     },
   },
-  advancedFeatures: { enable_rtm: true, enable_tools: true },
+  advancedFeatures: { enable_rtm: true, enable_tools: scenarioTools.length > 0 },
   parameters: {
     data_channel: 'rtm',
     enable_error_message: true,
@@ -45,9 +41,10 @@ const agent = new Agent({
   .withStt(new DeepgramSTT({ model: 'nova-3', language: 'en' }))
   .withLlm(new OpenAI({
     model: 'gpt-4o-mini',
-    greetingMessage: GREETING,
+    greetingMessage: scenario.greeting,
     failureMessage: 'Please wait a moment.',
     maxHistory: 15,
+    tools: scenarioTools.length > 0 ? scenarioTools : undefined,
     params: { max_tokens: 1024, temperature: 0.7, top_p: 0.95 },
   }))
   .withTts(new MiniMaxTTS({
@@ -58,10 +55,10 @@ const agent = new Agent({
 
 ## Session Options
 
-`createSession` takes the `AgoraClient` as its first argument, then the session options object. `session.start()` is called separately and returns the `agentId`.
+`AgoraClient` is passed to the Agent constructor. `createSession` takes the session options object. `session.start()` is called separately and returns the `agentId`.
 
 ```ts
-const session = agent.createSession(client, {
+const session = agent.createSession({
   channel: channel_name,
   agentUid,
   remoteUids: [requester_id],
@@ -85,11 +82,11 @@ const agentId = await session.start();
 
 ### Change the prompt
 
-Edit `ADA_PROMPT`. Keep it under the LLM's context window — `gpt-4o-mini` handles thousands of tokens but very long prompts amplify latency.
+Edit the scenario's `config.ts` and `product.ts`. Keep instructions concise and specific to Aster Note 15 and Power 65. No warranty duration or service price is defined. Do not add unsupported product controls or claim real after-sales writes or transfers.
 
 ### Change the greeting
 
-Edit `GREETING` in `app/api/invite-agent/route.ts`.
+Edit `greeting` in `scenarios/02-consumer-support/config.ts`.
 
 ### Change VAD behavior
 
@@ -127,6 +124,9 @@ On success the route returns `AgentResponse`:
 
 - Missing `channel_name` or `requester_id` → `400`.
 - Mocked success → `200` with `agent_id`, `create_ts`, `state`.
+- Captured Agent configuration contains the Aster adapter greeting, both call flows, and voice correction/accessibility instructions.
+- Inline mode has both sample warranty states and no tools; configured HTTP mode has the lookup tool and no inline orders.
+- Order lookup returns exact sample products/statuses or explicit 400/404 errors, without fabricating records.
 
 After editing this file, run:
 

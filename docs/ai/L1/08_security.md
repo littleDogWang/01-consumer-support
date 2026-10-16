@@ -33,6 +33,10 @@
 - Prompt includes explicit honesty and non-hallucination policy for product claims.
 - Agent failure message is constrained (`Please wait a moment.`) for degraded-path behavior.
 
+## Scenario 02 data and action limits
+
+The order API returns public demo records and optional replacement contents; it does not verify a caller identity or authorize a shipment. The Agent must not collect phone numbers, addresses, or payment information for callbacks or replacements that this build cannot submit. Locally defined Aster records and product instructions must not be presented as a real manufacturer service.
+
 ## Operational Security Practices
 
 - Run `pnpm run verify` before release changes.

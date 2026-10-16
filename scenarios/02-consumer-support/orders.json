@@ -1,19 +1,37 @@
 {
-  "version": "2026-10-12",
+  "version": "2026-10-15",
   "orders": [
     {
       "orderId": "AG-1001",
-      "product": "Agora Voice Hub",
+      "product": "Aster Power 65 adapter set for Aster Note 15",
       "status": "delivered",
       "warrantyStatus": "in_warranty",
-      "supportPath": "Collect the fault description and offer a warranty support request."
+      "supportPath": "For an unresolved adapter fault, recommend human warranty review. Active coverage does not guarantee free service or authorize a replacement. No replacement record is available."
     },
     {
       "orderId": "AG-1002",
-      "product": "Agora Meeting Mic",
+      "product": "Aster Power 65 adapter set for Aster Note 15",
       "status": "delivered",
       "warrantyStatus": "expired",
-      "supportPath": "Offer troubleshooting guidance and human support for paid repair options."
+      "supportPath": "Recommend human review of paid repair or accessory options. Do not quote a price or claim a request was submitted. No replacement record is available."
+    },
+    {
+      "orderId": "AG-1003",
+      "product": "Aster Power 65 adapter set for Aster Note 15",
+      "status": "delivered",
+      "warrantyStatus": "in_warranty",
+      "supportPath": "The recorded replacement shipped the adapter without its expected detachable wall power cord. Confirm the received contents and recommend human missing-part follow-up. No reshipment has been requested here.",
+      "replacement": {
+        "reference": "AST-R3001",
+        "status": "delivered",
+        "expectedContents": [
+          "Aster Power 65 adapter",
+          "Detachable wall power cord"
+        ],
+        "shippedContents": [
+          "Aster Power 65 adapter"
+        ]
+      }
     }
   ]
 }

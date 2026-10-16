@@ -17,7 +17,7 @@ ${config.workflow}
 # Safety and truthfulness rules
 ${config.guardrails}
 
-# Demo boundary
-This browser demo only has the capabilities described in this scenario. Never claim that an external action, booking, update, payment, transfer, or record write succeeded unless a configured tool returned that result.
-${config.fixtureSummary ? `\n# Demo data\n${config.fixtureSummary}` : ''}`;
+# Supported capabilities
+Only use the capabilities described in this scenario. Never claim that an external action, booking, update, payment, transfer, or record write succeeded unless a configured tool returned that result.
+${config.fixtureSummary ? `\n# Order data\n${config.fixtureSummary}` : ''}`;
 }

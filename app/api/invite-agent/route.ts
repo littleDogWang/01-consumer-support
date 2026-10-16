@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Omit vendor API keys for supported models — AgentKit infers reseller presets on start (see Agora Console / billing).
     const agent = new Agent({
       client,
-      instructions: getScenarioPrompt(scenario.id),
+      instructions: getScenarioPrompt(scenario.id, scenarioTools.length > 0),
       greeting: scenario.greeting,
       failureMessage: 'Please wait a moment.',
       maxHistory: 50,
@@ -81,8 +81,8 @@ export async function POST(request: NextRequest) {
         },
       },
       // RTM is required for transcript events in the browser client.
-      // enable_tools is required for MCP tool invocation.
-      advancedFeatures: { enable_rtm: true, enable_tools: true },
+      // The local fixture mode does not require a remotely reachable tool server.
+      advancedFeatures: { enable_rtm: true, enable_tools: scenarioTools.length > 0 },
       // Required for browser RTM events:
       // - data_channel: 'rtm' enables RTM delivery path for state/metrics/errors
       // - enable_error_message emits AGENT_ERROR payloads

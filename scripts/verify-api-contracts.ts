@@ -310,16 +310,24 @@ async function verifyInviteAgentValidation() {
   );
 }
 
-async function verifyInviteAgentSuccess() {
+async function verifyInviteAgentSuccess(toolBaseUrl?: string) {
   const { POST: inviteAgent } = await import('../app/api/invite-agent/route');
   const originalCreateSession = Agent.prototype.createSession;
+  const originalToolBaseUrl = process.env.TOP_TEN_SCENARIO_TOOL_BASE_URL;
+  if (toolBaseUrl) {
+    process.env.TOP_TEN_SCENARIO_TOOL_BASE_URL = toolBaseUrl;
+  } else {
+    delete process.env.TOP_TEN_SCENARIO_TOOL_BASE_URL;
+  }
+  let capturedAgent: Agent | null = null;
   let capturedSessionConfig: {
     channel?: string;
     agentUid?: string;
     remoteUids?: string[];
   } | null = null;
 
-  Agent.prototype.createSession = ((sessionConfig: unknown) => {
+  Agent.prototype.createSession = (function (this: Agent, sessionConfig: unknown) {
+    capturedAgent = this;
     capturedSessionConfig = sessionConfig as {
       channel?: string;
       agentUid?: string;
@@ -376,8 +384,87 @@ async function verifyInviteAgentSuccess() {
         JSON.stringify(['user-4321']),
       'POST /api/invite-agent should scope the session to the requesting user',
     );
+    assert(capturedAgent !== null, 'Invite should configure the Agent');
+    const agent = capturedAgent as Agent;
+    const instructions = agent.instructions ?? '';
+    assert(agent.greeting?.includes('Aster') && agent.greeting.includes('power adapter'), 'Greeting should identify the fictional brand and supported accessory');
+    for (const guide of ['Adapter not working', 'Missing part in a replacement', 'Voice corrections and accessibility']) {
+      assert(instructions.includes(`## ${guide}`), `Invite should include the ${guide} guide`);
+    }
+    assert(!instructions.includes('Agora Voice Hub') && !instructions.includes('Agora Meeting Mic'), 'Invite should not contain legacy product records');
+    assert(!/\bHP\b|Hewlett|Buds S1/.test(instructions + agent.greeting), 'Runtime support should use the fictional Aster brand only');
+    assert(agent.advancedFeatures?.enable_rtm === true, 'Invite should preserve RTM');
+    assert(agent.advancedFeatures?.enable_tools === Boolean(toolBaseUrl), 'Tool execution should match the configured lookup mode');
+    const tools = agent.llm?.tools ?? [];
+    if (toolBaseUrl) {
+      assert(tools.length === 1, 'Tool mode should register only the read-only order lookup');
+      const tool = tools[0];
+      assert(tool.type === 'function' && tool.function?.name === 'lookup_order', 'Tool mode should register lookup_order');
+      assert(tool.server?.url === `${toolBaseUrl}/api/scenarios/02-consumer-support/lookup-order`, 'Lookup should use the configured server');
+      assert(tool.server?.method === 'POST', 'Lookup tool should use POST');
+      assert(instructions.includes('Tool lookup mode:'), 'Tool mode should require actual tool results');
+      assert(!/AG-100[123]|AST-R3001/.test(instructions), 'Tool mode should not expose inline orders or replacement records as a fallback');
+    } else {
+      assert(tools.length === 0, 'Default mode should not require external tools');
+      assert(instructions.includes('Inline fixture mode:'), 'Default mode should explain inline sample lookup');
+      assert(instructions.includes('AG-1001: Aster Power 65 adapter set for Aster Note 15; status=delivered; warranty=in_warranty'), 'Default mode should include the covered adapter order');
+      assert(instructions.includes('AG-1002: Aster Power 65 adapter set for Aster Note 15; status=delivered; warranty=expired'), 'Default mode should include the expired adapter order');
+      const replacementLine = instructions.split('\n').find((line) => line.startsWith('AG-1003:'));
+      assert(replacementLine, 'Default mode should include the missing-part order');
+      const replacement = JSON.parse(replacementLine.split('; replacement=')[1]);
+      assert(replacement.reference === 'AST-R3001' && replacement.status === 'delivered', 'Inline mode should preserve the replacement reference and delivery status');
+      assert(replacement.expectedContents.includes('Detachable wall power cord') && !replacement.shippedContents.includes('Detachable wall power cord'), 'Inline mode should preserve the recorded missing cord');
+    }
   } finally {
     Agent.prototype.createSession = originalCreateSession;
+    if (originalToolBaseUrl === undefined) {
+      delete process.env.TOP_TEN_SCENARIO_TOOL_BASE_URL;
+    } else {
+      process.env.TOP_TEN_SCENARIO_TOOL_BASE_URL = originalToolBaseUrl;
+    }
+  }
+}
+
+async function verifyConsumerSupportLookup() {
+  const { POST: lookupOrder } = await import('../app/api/scenarios/02-consumer-support/lookup-order/route');
+  for (const [orderId, warrantyStatus] of [
+    [' ag-1001 ', 'in_warranty'],
+    ['AG-1002', 'expired'],
+    [' ag-1003 ', 'in_warranty'],
+  ]) {
+    const response = await lookupOrder(new Request('http://localhost:3000/api/scenarios/02-consumer-support/lookup-order', {
+      method: 'POST',
+      body: JSON.stringify({ order_id: orderId }),
+    }));
+    const body = await response.json();
+    assert(response.status === 200, 'Known orders should return 200');
+    assert(body.order.orderId === orderId.trim().toUpperCase(), 'Order lookup should normalize case and whitespace');
+    assert(body.order.product === 'Aster Power 65 adapter set for Aster Note 15', 'All sample orders should refer to the selected accessory and device');
+    assert(body.order.warrantyStatus === warrantyStatus, 'Each order should preserve its own coverage status');
+    if (body.order.orderId === 'AG-1003') {
+      assert(body.order.replacement.reference === 'AST-R3001', 'Missing-part lookup should identify the replacement shipment');
+      assert(body.order.replacement.status === 'delivered', 'Replacement delivery status should remain separate from coverage');
+      assert(JSON.stringify(body.order.replacement.expectedContents) === JSON.stringify(['Aster Power 65 adapter', 'Detachable wall power cord']), 'Lookup should return the complete expected set');
+      assert(JSON.stringify(body.order.replacement.shippedContents) === JSON.stringify(['Aster Power 65 adapter']), 'Lookup should preserve the omission instead of reporting a complete set');
+    } else {
+      assert(!('replacement' in body.order), 'First enquiries must not acquire fabricated replacement data');
+    }
+  }
+  for (const [orderId, status] of [
+    ['AG-9999', 404],
+    ['AG-100', 404],
+    ['', 400],
+    ['   ', 400],
+    [123, 400],
+    [null, 400],
+  ] as const) {
+    const response = await lookupOrder(new Request('http://localhost:3000/api/scenarios/02-consumer-support/lookup-order', {
+      method: 'POST',
+      body: JSON.stringify({ order_id: orderId }),
+    }));
+    const body = await getJson(response);
+    assert(response.status === status, 'Unknown and invalid order IDs should fail explicitly');
+    assert(!('order' in body), 'Failed lookup should never fabricate an order');
   }
 }
 
@@ -453,6 +540,8 @@ async function main() {
   await verifyChatCompletionsSseDone();
   await verifyInviteAgentValidation();
   await verifyInviteAgentSuccess();
+  await verifyInviteAgentSuccess('https://orders.example.test');
+  await verifyConsumerSupportLookup();
   await verifyStopConversationValidation();
   await verifyStopConversationSuccess();
 

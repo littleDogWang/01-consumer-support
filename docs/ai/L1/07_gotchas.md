@@ -80,6 +80,10 @@
 
 Pass `rtmEngine` directly to `AgoraVoiceAI.init`; the nested `rtmConfig` is no longer supported. UIKit 1.1.0 declares an optional Toolkit ^1.2.0 peer, while this workspace resolves Toolkit 2.10.0. Validate transcript, agent state, metrics, and teardown in a real call before shipping.
 
+## Scenario 02 record boundaries
+
+An order marked delivered or in_warranty does not prove that a replacement exists or that every expected component arrived. Use the optional replacement reference/status and expected/shipped contents, and confirm customer-reported received contents separately. Tool mode omits all inline order/replacement fixtures; failures cannot fall back to them.
+
 ## Related Deep Dives
 
 - [conversation_lifecycle.md](L2/conversation_lifecycle.md) — Start/stop race and lifecycle ownership details.

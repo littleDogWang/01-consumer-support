@@ -15,17 +15,19 @@ If start fails, run `agora project doctor --deep`.
 
 ## Change Agent Behavior
 
-Target file: `app/api/invite-agent/route.ts`.
+For this scenario, edit `scenarios/02-consumer-support/config.ts` for role, workflow, guardrails, and greeting, `product.ts` for local Aster adapter and missing-part instructions, and `orders.json` for sample orders. `scenarios/index.ts` formats the prompt and selects inline records or tool-only lookup instructions. `app/api/invite-agent/route.ts` passes the result to the SDK.
 
 Typical edits:
 
-- System prompt (`ADA_PROMPT`).
-- Greeting default (`GREETING`).
+- Product-specific system prompt and greeting (scenario `config.ts`).
+- Adapter fault, replacement-content checks, correction/accessibility, and human follow-up instructions (`product.ts`).
 - Shared agent UID (`DEFAULT_AGENT_UID` in `lib/agora.ts`).
 - VAD (`turnDetection.config.*`).
 - STT/LLM/TTS model/provider blocks.
 
 Validation path:
+
+Run `pnpm run verify:scenario` for scenario selection and `pnpm run verify` for the complete local check chain. API tests cover both prompt lookup modes and fixed order and optional replacement responses. No external tool server is required by default. A real call remains necessary for spoken-flow acceptance.
 
 1. `pnpm run lint`
 2. `pnpm run typecheck`

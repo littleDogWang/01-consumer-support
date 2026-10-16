@@ -6,6 +6,12 @@ export interface ConsumerSupportOrder {
   status: string;
   warrantyStatus: 'in_warranty' | 'expired';
   supportPath: string;
+  replacement?: {
+    reference: string;
+    status: 'shipped' | 'delivered';
+    expectedContents: string[];
+    shippedContents: string[];
+  };
 }
 
 const orders = orderData.orders as ConsumerSupportOrder[];
@@ -19,7 +25,7 @@ export function formatOrdersForPrompt(): string {
   return orders
     .map(
       (order) =>
-        `${order.orderId}: ${order.product}; status=${order.status}; warranty=${order.warrantyStatus}; support=${order.supportPath}`,
+        `${order.orderId}: ${order.product}; status=${order.status}; warranty=${order.warrantyStatus}; support=${order.supportPath}; replacement=${JSON.stringify(order.replacement ?? null)}`,
     )
     .join('\n');
 }

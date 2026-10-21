@@ -213,3 +213,7 @@ Released under the [MIT License](./LICENSE).
 Default conversations retain the existing Aster support instructions and exact-match local order records. A configured public HTTPS tool origin enables read-only lookup and omits inline orders; lookup failure must never fall back to fixed orders.
 
 TOP_TEN_SCENARIO_TOOL_BASE_URL is optional. Only an explicitly configured public HTTPS endpoint enables tools; malformed, HTTP, localhost and local/private origins leave tools disabled. URL validation does not prove network reachability. No tunnel, knowledge base or database is needed for the default conversation. Local checks do not establish live speech or cloud callback acceptance.
+
+## Interface
+
+The interface follows scenario 01: task-specific entry and welcome, persistent scenario identity, activity canvas, transcript and Glass voice controls. Inspector shows actual session evidence; Build provides this repository’s setup commands. Business results retain their original contracts and appear below the voice workspace. Edit `scenarios/02-consumer-support/presentation.ts` for scenario copy. Styling uses Tailwind 4/PostCSS and the vendored theme; see `styles/agent-ui/PROVENANCE.md`. Local checks and browser rendering do not establish live voice/cloud-tool acceptance.

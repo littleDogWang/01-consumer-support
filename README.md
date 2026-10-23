@@ -1,219 +1,160 @@
-# Agora Conversational AI Next.js Quickstart
+# Aster Power Adapter Support
 
-[![Build](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs/actions/workflows/build-check.yml/badge.svg)](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs/actions/workflows/build-check.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Node](https://img.shields.io/badge/node-%3E%3D22-brightgreen)](https://nodejs.org/)
+Troubleshoot an adapter fault or explain a missing replacement part.
 
-Build a production-style voice agent in minutes with Next.js and the Agora Conversational AI Engine, including voice agent visualizer ([Agent UIKit](https://agoraio-conversational-ai.github.io/agent-uikit/)), live transcript, and real-time pipeline latency via `AGENT_METRICS` ([Agent Toolkit](https://github.com/AgoraIO-Conversational-AI/agent-client-toolkit-ts)).
+A voice after-sales assistant for the fictional Aster Note 15 laptop and Aster Power 65 adapter set. It handles two concrete calls: an adapter that stopped working and a delivered replacement missing its detachable wall power cord.
 
-## Scenario 02: Aster power adapter support
-
-This derivative uses the fictional Aster brand for laptop power adapter warranty enquiries and missing parts in replacement packages. It supports Aster Note 15 and the Aster Power 65 adapter set, with one-step external checks, correction/accessibility instructions, local order facts, and human follow-up recommendations. Product instructions and fixed records live in [`scenarios/02-consumer-support`](scenarios/02-consumer-support/README.md).
-
-Try "My Aster power adapter stopped working; order AG-1001" or "My replacement is missing the wall cord; order AG-1003". AG-1001 is covered, AG-1002 is expired, and AG-1003 has a delivered replacement recorded without its expected wall power cord. No warranty duration or service price is defined. Actual repair, replacement, missing-part submission, ticket, callback, and transfer operations are not implemented.
-
-Default sessions use inline local records. The existing optional `TOP_TEN_SCENARIO_TOOL_BASE_URL` switches to read-only HTTP lookup for an already cloud-reachable endpoint and omits inline records. No MCP, external knowledge base, or tunnel is required. Run `pnpm run verify:scenario` and `pnpm run verify` for local checks; actual speech, corrections, accessibility and RTC operation still require a real call.
+Read the [eight-part recipe](RECIPE.md) for example conversations and business customization. This independent scenario derives its RTC/RTM lifecycle from the official [Agora Next.js quickstart](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs); its scenario facts and tools live in this repository.
 
 ## Prerequisites
 
-- [Node.js 22+](https://nodejs.org/en/download/)
-- [pnpm](https://pnpm.io/installation)
-- [Agora CLI](https://github.com/AgoraIO-Community/cli)
+- Node.js 22 or newer; pnpm **9.15.9** (`packageManager` in package.json; lockfile format 9).
+- Access to this repository and an Agora project with RTC, Signaling and Conversational AI available.
+- Browser microphone permission; HTTPS for hosted use.
+- Docker with a running engine for container verification. Agora CLI is optional for manual setup and required only for its binding commands.
 
 ## Run It
 
-Getting started is quick and easy: install the CLI _(skip if you already have it)_ , scaffold the Next.js quickstart using the Agora CLI, install dependencies, and run.
-
-1. **Install the Agora CLI and sign in**
-   _(skip if `agora` is already on your PATH)_:
-
-   macOS and Linux:
-
-   ```bash
-   curl -fsSL https://raw.githubusercontent.com/AgoraIO/cli/main/install.sh | sh -s -- --add-to-path
-   ```
-
-   Windows PowerShell:
-
-   ```powershell
-   irm https://dl.agora.io/cli/install.ps1 | iex
-   ```
-
-   If the Windows install command fails in PowerShell, try running the macOS/Linux command from [Git Bash](https://git-scm.com/downloads/win), then open a new terminal and run `agora --help` to confirm the CLI is on your PATH.
-
-   Then verify and sign in:
-
-   ```bash
-   agora --help
-   agora login
-   ```
-
-   If `agora --help` is not found after install, close and reopen your terminal, then try again. If it still fails, check that the installer-added Agora CLI location is on your shell `PATH`.
-
-2. **Scaffold and run**
-   `agora init` clones the starter, binds an Agora project, and writes `.env.local`. (replace `my-nextjs-demo` with your own project name):
-
-   ```bash
-   agora init my-nextjs-demo --template nextjs
-   cd my-nextjs-demo
-   pnpm install
-   pnpm dev
-   ```
-
-3. Open [http://localhost:3000](http://localhost:3000) and click **Start conversation**.
-
-If the agent does not join or transcripts do not appear, run **`agora project doctor --deep`** to check credentials, feature enablement, network reachability, and local env binding.
-
-### Working from a clone of this repository
-
-Use this path if you already cloned **this** repo (for example to contribute or fork):
-
 ```bash
-git clone https://github.com/AgoraIO-Conversational-AI/agent-quickstart-nextjs.git
-cd agent-quickstart-nextjs
-agora login
-agora project use <your-project>
-pnpm install
-agora project env write .env.local
-agora project doctor --deep
-pnpm dev
+git clone https://github.com/littleDogWang/02-consumer-support.git
+cd 02-consumer-support
+pnpm install --frozen-lockfile
+cp env.local.example .env.local
 ```
 
-### Deploy to Vercel
+Fill the two required Agora values in `.env.local`, then run `pnpm run doctor` and `pnpm run dev`. Keep an existing env file instead of overwriting it. With a ready Agora CLI, use `agora quickstart env write . --template nextjs --project <your-project> --json` to write template-aware keys for an existing authorized project. Check `agora version` and `agora doctor --json` first; do not create or change a remote project without authorization.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-quickstart-nextjs&project-name=agent-quickstart-nextjs&repository-name=agent-quickstart-nextjs&env=NEXT_PUBLIC_AGORA_APP_ID,NEXT_AGORA_APP_CERTIFICATE&envDescription=Agora%20credentials%20needed%20to%20run%20the%20app&envLink=https%3A%2F%2Fgithub.com%2FAgoraIO-Conversational-AI%2Fagent-quickstart-nextjs%23run-it&demo-title=Agora%20Conversational%20AI%20Next.js%20Quickstart&demo-description=Official%20Next.js%20quickstart%20for%20building%20browser-based%20voice%20AI%20with%20Agora&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FAgoraIO-Conversational-AI%2Fagent-quickstart-nextjs%2Fmain%2F.github%2Fassets%2FConversation-Ai-Client.gif)
+Open [http://localhost:3000](http://localhost:3000) and choose **Start product support**. Confirm two-way audio and both transcript speakers with a real call; local checks cannot establish that result.
 
-To populate Vercel env vars from your bound Agora project:
+## Working From A Clone
 
-```bash
-agora project use <your-project>
-agora project env write .env.local
-rg "^(NEXT_PUBLIC_AGORA_APP_ID|NEXT_AGORA_APP_CERTIFICATE)=" .env.local
-```
+Run all commands at this repository root. Install the declared pnpm version before using the frozen lockfile; pnpm 8 cannot consume lockfile format 9. On an existing clone, retain `.env.local` and use `pnpm install --frozen-lockfile`, `pnpm run doctor`, then `pnpm run dev`.
 
-Copy those two values into Vercel Project Settings -> Environment Variables.
+Use the scenario-specific entry and persistent identity; starting voice requires a user action.
 
-### Environment variables
+## Environment Variables
 
-Defined in [`env.local.example`](env.local.example).
+The tracked example is [env.local.example](env.local.example); local Next.js loads `.env.local`. Hosted environments provide the same values through the platform's secret store.
 
-| Variable                     | Required | Notes                                                            |
-| ---------------------------- | :------: | ---------------------------------------------------------------- |
-| `NEXT_PUBLIC_AGORA_APP_ID`   |    ✅    | Agora Console → Project → App ID.                                |
-| `NEXT_AGORA_APP_CERTIFICATE` |    ✅    | Agora Console → Project → App Certificate. **Server-side only.** |
+| Variable | Required | Owner / exposure | Purpose |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_AGORA_APP_ID` | Required | Next.js build and runtime; public | App ID from the selected Agora project; Docker must receive the same value at build and runtime. |
+| `NEXT_AGORA_APP_CERTIFICATE` | Required | Next.js server runtime; secret | Signs RTC/RTM credentials and authenticates managed Agent operations; never a build argument. |
+| `TOP_TEN_SCENARIO_TOOL_BASE_URL` | Optional | Next.js server; non-secret | This same app's public HTTPS origin. Omit for default conversation; enabling tools requires actual cloud reachability. |
 
-The default agent configuration in [`app/api/invite-agent/route.ts`](app/api/invite-agent/route.ts) uses Agora-managed STT, LLM, and TTS, so no extra vendor API keys are required for the base quickstart.
+With no valid public HTTPS tool origin, voice uses default conversation mode. A valid-looking URL does not prove that Agora cloud can reach it. Restart/redeploy after changing env and start a new conversation.
+
+Optional BYOK credentials appear only in the invite route's commented provider blocks. They are not needed by default; enabling a block requires supplying its server-only variables and separately verifying the provider.
 
 ## Commands
 
-```bash
-# Dev
-pnpm dev                # start the Next.js dev server
+### Setup
 
-# Quality
-pnpm run lint           # eslint
-pnpm run typecheck      # tsc --noEmit
-pnpm run doctor         # local prereqs + env binding
+`pnpm install --frozen-lockfile`, configure `.env.local`, then `pnpm run doctor`.
 
-# CI / pre-ship
-pnpm run verify:api     # API contract checks
-pnpm run build          # production build
-pnpm run verify         # doctor + lint + typecheck + verify:api + build
-```
+### Development
 
-Run `pnpm run verify` before shipping changes — it covers local prerequisites, lint, type safety, the core API route contracts, and the production build.
+`pnpm run dev` starts Next.js with its local API routes.
+
+### Quality
+
+| Command | Purpose |
+| --- | --- |
+| `pnpm run doctor` | `node scripts/doctor.mjs` |
+| `pnpm run dev` | `next dev --webpack` |
+| `pnpm run build` | `next build` |
+| `pnpm run start` | `next start` |
+| `pnpm run lint` | `eslint .` |
+| `pnpm run verify:api` | `node --import tsx scripts/verify-api-contracts.ts` |
+| `pnpm run typecheck` | `tsc --noEmit` |
+| `pnpm run verify` | Canonical local/CI checks: `pnpm run doctor`, `pnpm run verify:template`, `pnpm run lint`, `pnpm run typecheck`, `pnpm run verify:api`, `pnpm run verify:scenario`, `pnpm run build` |
+| `pnpm run verify:scenario` | `node --import tsx scripts/verify-scenario.ts` |
+| `pnpm run verify:template` | Standard repository paths, identity, documentation links and delivery contracts. |
+| `pnpm run verify:docker` | Separate Docker image + startup + scenario-route smoke check (synthetic credentials). |
+
+### CI / Pre-ship
+
+`pnpm run verify` is the canonical local and project-CI entry. It includes every shipped scenario check. Doctor requires a populated local env file; CI uses synthetic credentials and mocked Agora operations. `pnpm run verify:docker` is the separate container check.
 
 ## Architecture
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./system-architecture-dark.svg">
-  <img src="./system-architecture.svg" alt="System architecture">
-</picture>
+A browser joins Agora RTC for audio and RTM for transcript/state/metrics events. Next.js signs short-lived tokens and starts/stops the cloud Agent. Scenario instructions select the actual business behavior.
 
-The browser fetches a combined RTC + RTM token (`buildTokenWithRtm`) from this app, joins the channel using a single RTC client, and uses RTM as the data channel for transcript, agent state, metrics, and error events. The Conversational AI Engine joins the same channel as the shared agent UID in [`lib/agora.ts`](lib/agora.ts) and runs the STT → LLM → TTS pipeline in Agora Cloud.
+Local development runs one Next.js process at http://localhost:3000 using `.env.local`. Native production uses `pnpm run build` then `pnpm run start`. Docker runs the same app as non-root UID 1001 on port 3000, without a reverse proxy inside the image. A single Next.js deployment can serve the voice app and read-only fixture API. No writable business store is required. This sample order endpoint is not customer authentication or a real manufacturer service.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for topology, ownership and deployment details.
 
 ## What You Get
 
-- browser voice client built with Next.js App Router
-- RTC audio plus RTM transcript and state events
-- server routes for token generation, invite, and stop
-- [`AgentVisualizer`](https://agoraio-conversational-ai.github.io/agent-uikit/) for agent state and a built-in transcript panel for live turns
-- per-stage latency header driven by `AGENT_METRICS`
-- Agora-managed default STT, LLM, and TTS configuration
+- Safety-first adapter checks that stop for damage, unusual heat, smoke or a burning smell.
+- Exact-match sample order lookup with separate warranty and replacement-shipment facts.
+- Correction-friendly conversations and a clear next step for human handling.
+
+**Default mode:** Product instructions and the fixed AG-1001, AG-1002 and AG-1003 records enter the prompt. The assistant does not query a live order system.
+
+**Tool mode:** The read-only `lookup_order` REST tool retrieves the local order API response. Inline order records are omitted, and failed lookups cannot fall back to remembered fixtures.
+
+**Limits:** No ticket, replacement request, callback, shipment or actual transfer is created. Warranty status does not establish a warranty duration, repair price or entitlement to free service.
 
 ## How It Works
 
-1. The browser requests an RTC + RTM token from `/api/generate-agora-token`.
-2. The backend invites an Agora cloud agent with `/api/invite-agent`.
-3. The browser joins the channel and publishes mic audio.
-4. The client receives transcript, agent state, and `AGENT_METRICS` (per-stage latency) events over RTM.
-5. On end, the client calls `/api/stop-conversation`, logs out RTM, and unmounts the call view so Agora React hooks clean up RTC publish/join and the local microphone track.
+| User step | Assistant / app behavior | Result |
+| --- | --- | --- |
+| Describe a faulty adapter or missing part | Choose the matching product-support flow. | A targeted safety question or missing-component check. |
+| Supply the exact order ID | Use inline records by default, or call lookup_order when configured. | Known warranty and replacement facts; unknown IDs stay unresolved. |
+| Confirm the received contents or check result | Explain the next human-handling step. | Guidance only, without a fabricated replacement submission. |
 
-## Optional BYOK
+`lookup_order` sends `order_id` to `POST /api/scenarios/02-consumer-support/lookup-order`. AG-1001 is in warranty, AG-1002 is expired, and AG-1003 has delivered replacement AST-R3001 with an expected wall cord missing from the shipped-contents record. The customer's received contents remain a separate statement.
 
-The base `.env.local` contract contains only Agora credentials. If you are migrating from a supported provider, uncomment the matching snippet in [`app/api/invite-agent/route.ts`](app/api/invite-agent/route.ts) and add its variables to your local environment.
-
-```bash
-# Deepgram STT
-NEXT_DEEPGRAM_API_KEY=...
-
-# OpenAI-compatible LLM
-NEXT_LLM_URL=https://api.openai.com/v1/chat/completions
-NEXT_LLM_API_KEY=...
-
-# ElevenLabs TTS
-NEXT_ELEVENLABS_API_KEY=...
-NEXT_ELEVENLABS_VOICE_ID=...
-```
+The invite body contains `requester_id` and `channel_name`.
 
 ## Repo Map
 
-- `app/api/generate-agora-token/route.ts` — issues RTC + RTM tokens
-- `app/api/invite-agent/route.ts` — starts the agent session and configures the pipeline
-- `app/api/stop-conversation/route.ts` — stops the agent session
-- `components/LandingPage.tsx` — entry point: token fetch, RTM login, conversation lifecycle
-- `components/ConversationComponent.tsx` — RTC client, transcript state, `AGENT_METRICS`, mic release
-- `components/QuickstartConversationLayout.tsx` — in-call header, transcript rail, controls dock
-- `components/QuickstartPipelineMetrics.tsx` — per-stage latency chips in the header
-- `components/QuickstartTranscriptPanel.tsx` — live transcript rail
-- `components/QuickstartPreCallCard.tsx` — pre-call hero card
-- `lib/conversation.ts` — transcript normalization and visualizer state mapping
-- `AGENTS.md` — primary agent-facing guide
+- `app/api/`: token, invite, stop and scenario HTTP routes.
+- `components/`: browser RTC/RTM lifecycle, transcript and scenario presentation.
+- `scenarios/02-consumer-support/`: scenario data, instructions and business rules.
+- `scenarios/index.ts`, `scenarios/tool-contracts.ts`: prompt and optional tool assembly.
+- `scripts/`: doctor, contracts, scenario checks and delivery verification.
+- `docs/ai/`: AI loading card, internal recipe, all eight L1 summaries and L2 deep dives.
 
 ## Troubleshooting
 
-- **Agent does not join or transcripts are missing:** run `agora project doctor --deep`.
-- **`pnpm run doctor` fails:** run `agora project env write .env.local`, then retry.
-- **Manual clone / env values:** `agora project use <your-project>` then `agora project env write .env.local`.
-- **RTM login fails:** keep [`app/api/generate-agora-token/route.ts`](app/api/generate-agora-token/route.ts) on `RtcTokenBuilder.buildTokenWithRtm` — RTC-only tokens will not satisfy `rtm.login`.
-- **Transcript speakers inverted:** check the `uid === "0"` remap in [`components/ConversationComponent.tsx`](components/ConversationComponent.tsx).
-- **Agent never appears in channel:** ensure the shared agent UID in [`lib/agora.ts`](lib/agora.ts) is used by both the client and invite route.
+- **Wrong pnpm / frozen-lockfile error:** install pnpm 9.15.9; do not regenerate the lockfile with pnpm 8.
+- **Doctor fails:** check Node, pnpm and the two populated values in `.env.local`.
+- **Agent/transcript fails:** inspect token/invite errors, then RTM login. Preserve `RtcTokenBuilder.buildTokenWithRtm`.
+- **No business write:** Product instructions and the fixed AG-1001, AG-1002 and AG-1003 records enter the prompt. The assistant does not query a live order system.
+- **Lost result or state:** A single Next.js deployment can serve the voice app and read-only fixture API. No writable business store is required. This sample order endpoint is not customer authentication or a real manufacturer service.
+- **Docker has no usable client App ID:** rebuild with the correct public App ID and use that same ID at runtime.
+
+## Deployment
+
+Native hosting runs `pnpm run build` and `pnpm run start` on the documented Node runtime. A single Next.js deployment can serve the voice app and read-only fixture API. No writable business store is required. This sample order endpoint is not customer authentication or a real manufacturer service. Serve the public origin through HTTPS; configure the optional business-tool origin only for a cloud-reachable deployment.
+
+### Docker
+
+```bash
+docker build --build-arg NEXT_PUBLIC_AGORA_APP_ID=YOUR_AGORA_APP_ID -t 02-consumer-support:local .
+docker run --rm -p 3000:3000 --env-file .env.local 02-consumer-support:local
+```
+
+Replace `YOUR_AGORA_APP_ID` with the public App ID used in `.env.local`. Next.js embeds that identifier in the browser bundle, so changing projects requires rebuilding the image. The App Certificate is supplied only at container runtime. A container restart does not preserve process memory. This image does not add a shared state service.
+
+`pnpm run verify:docker` independently builds the image with synthetic credentials, starts an isolated localhost-bound container, checks the home page and a scenario route, then removes only that container. It does not contact Agora or prove a live voice session.
 
 ## More Docs
 
-- [docs/ai/L0_repo_card.md](./docs/ai/L0_repo_card.md)
-- [docs/ai/RECIPE.md](./docs/ai/RECIPE.md)
-- [AGENTS.md](./AGENTS.md)
-
-## Contributing
-
-Pull requests welcome — see [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and conventions.
+- [AGENTS.md](AGENTS.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+- [RECIPE.md](RECIPE.md)
+- [AI repo card](docs/ai/L0_repo_card.md)
+- [Internal recipe contract](docs/ai/RECIPE.md)
+- [Scenario guide](scenarios/02-consumer-support/README.md)
+- [Acceptance cases](scenarios/02-consumer-support/acceptance.md)
 
 ## Security
 
-Please do **not** open public issues for security reports. Email security@agora.io with details and reproduction steps.
+Use fictional business data. The sample is not a production authentication, authorization or multi-tenant system. Keep certificates, provider keys, local data and local project bindings out of Git, logs and images. Rotate exposed credentials through the owning service and replace the runtime secret. Report security issues privately to security@agora.io; do not post credentials in an issue.
 
 ## License
 
-Released under the [MIT License](./LICENSE).
-
-
-## Local conversation and optional tools
-
-Default conversations retain the existing Aster support instructions and exact-match local order records. A configured public HTTPS tool origin enables read-only lookup and omits inline orders; lookup failure must never fall back to fixed orders.
-
-TOP_TEN_SCENARIO_TOOL_BASE_URL is optional. Only an explicitly configured public HTTPS endpoint enables tools; malformed, HTTP, localhost and local/private origins leave tools disabled. URL validation does not prove network reachability. No tunnel, knowledge base or database is needed for the default conversation. Local checks do not establish live speech or cloud callback acceptance.
-
-## Interface
-
-The interface follows scenario 01: task-specific entry and welcome, persistent scenario identity, activity canvas, transcript and Glass voice controls. Inspector shows actual session evidence; Build provides this repository’s setup commands. Business results retain their original contracts and appear below the voice workspace. Edit `scenarios/02-consumer-support/presentation.ts` for scenario copy. Styling uses Tailwind 4/PostCSS and the vendored theme; see `styles/agent-ui/PROVENANCE.md`. Local checks and browser rendering do not establish live voice/cloud-tool acceptance.
+Released under the [MIT License](LICENSE). Preserve upstream copyright and source attribution.

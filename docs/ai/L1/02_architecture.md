@@ -1,107 +1,30 @@
 # 02 Architecture
 
-> Runtime architecture for browser RTC/RTM, Next.js route handlers, and Agora managed agent session.
+> Topology and state ownership for Aster Power Adapter Support.
 
-## High-Level Shape
+## Components
 
-- Next.js App Router frontend and API routes in one deployable app.
-- Browser joins Agora RTC channel and uses RTM for transcript/state/metrics/errors.
-- Server-side routes mint token and call Agora Agent Server SDK.
-- Agent executes STT -> LLM -> TTS pipeline in Agora cloud.
+One Next.js App Router process serves the browser and routes. RTC carries audio; RTM carries transcript, Agent state, metrics and errors. The server SDK manages the cloud STT/LLM/TTS Agent. Scenario files define the business behavior.
 
-## Component Graph
+## Data And Event Flow
 
-```text
-Browser UI (LandingPage + ConversationComponent)
-  -> GET /api/generate-agora-token
-  -> POST /api/invite-agent
-  -> RTC join/publish mic
-  -> RTM subscribe + AgoraVoiceAI events
-  -> POST /api/stop-conversation
+The user start action creates any necessary scenario session, fetches the combined RTC/RTM token and bootstraps RTM plus invite. RTC/microphone hooks wait for the StrictMode guard. Toolkit events feed transcript and Inspector. Renew both token identities consistently; end calls stop, logs out RTM and unmounts hook-owned resources.
 
-Next.js API routes
-  -> agora-token (RtcTokenBuilder.buildTokenWithRtm)
-  -> agora-agents (start/stop managed agent)
+The invite body contains `requester_id` and `channel_name`.
 
-Agora Cloud
-  -> Agent session (Deepgram STT + OpenAI LLM + MiniMax TTS by default)
-  -> RTM payloads (transcript, state, metrics, error)
-```
+`lookup_order` sends `order_id` to `POST /api/scenarios/02-consumer-support/lookup-order`. AG-1001 is in warranty, AG-1002 is expired, and AG-1003 has delivered replacement AST-R3001 with an expected wall cord missing from the shipped-contents record. The customer's received contents remain a separate statement.
 
-## Start Sequence
+## Ownership Boundaries
 
-1. UI fetches RTC+RTM token and channel.
-2. UI invites agent and initializes RTM in parallel.
-3. UI mounts conversation view.
-4. `useJoin` connects RTC once `isReady` guard passes.
-5. `AgoraVoiceAI.init()` subscribes transcript/state/metrics streams.
+LandingPage owns pre-call bootstrap/RTM; ConversationComponent owns joined RTC/toolkit subscriptions. Token/invite/stop routes own privileged operations. `scenarios/02-consumer-support/` owns business rules/data; tool-contracts owns server-bound tool execution scope. Session evidence and manually selected outcomes are not automatic proof of business completion.
 
-## End Sequence
+## Runtime Modes
 
-1. UI calls `/api/stop-conversation` with `agent_id` if present.
-2. UI logs out RTM client.
-3. RTC hook ownership handles leave/unpublish cleanup.
-4. Component state resets to pre-call shell.
+Local development runs one Next.js process at http://localhost:3000 using `.env.local`. Native production uses `pnpm run build` then `pnpm run start`. Docker runs the same app as non-root UID 1001 on port 3000, without a reverse proxy inside the image. A single Next.js deployment can serve the voice app and read-only fixture API. No writable business store is required. This sample order endpoint is not customer authentication or a real manufacturer service.
 
-## Core State Domains
-
-- Session bootstrap: `LandingPage` (`agoraData`, `rtmClient`, loading/error flags).
-- RTC transport and mic: `ConversationComponent` + `agora-rtc-react` hooks.
-- Transcript + agent state: `AgoraVoiceAI` events mapped through `lib/conversation.ts`.
-- Metrics and connection issues: `AGENT_METRICS`, `MESSAGE_ERROR`, `SAL_STATUS`, RTM fallback parsing.
-
-## External Dependencies
-
-- `agora-rtc-react` / `agora-rtc-sdk-ng` for media transport.
-- `agora-rtm` for data channel.
-- `agora-agent-client-toolkit` and `agora-agent-uikit` for conversation logic/UI.
-- `agora-agents` for managed agent lifecycle.
-
-## Deployment Modes
-
-- Local development via `pnpm run dev`.
-- Vercel deployment as single Next.js app with server env vars.
-
-## Data and Control Boundaries
-
-- Browser never sees the app certificate; only receives signed short-lived tokens.
-- Agent lifecycle control (`start`, `stop`) is server-routed.
-- Transcript/state/metrics are data-plane RTM events from agent to browser.
-- UI control-plane actions (start/end, renew) originate in `LandingPage`.
-
-## Internal Interfaces Between Components
-
-`LandingPage` -> `ConversationComponent` props:
-
-- `agoraData` (`token`, `uid`, `channel`, optional `agentId`)
-- `rtmClient` (already logged-in and subscribed)
-- `onTokenWillExpire(uid)` callback for dual-token renewal
-- `onEndConversation()` callback for teardown and route stop call
-
-`ConversationComponent` -> child UI components:
-
-- normalized transcript items and current in-progress turn
-- agent visualizer state derived from transport + semantic state
-- connection issue list and derived severity
-- recent metric window for stage latency chips
-
-## Why the App Router Structure Matters
-
-- API handlers under `app/api` co-deploy with UI and share env management.
-- Client components isolate browser-only SDK usage via dynamic import and `ssr: false`.
-- This avoids SSR-side access to WebRTC-dependent modules.
-
-## Change Impact Hints
-
-- Changes to token or invite routes affect both startup and renewal paths.
-- Changes to transcript mapping can break both transcript panel and visualizer semantics.
-- Changes to RTM setup in `LandingPage` affect toolkit subscription readiness.
+Docker embeds the public App ID at build and receives the certificate only at runtime. It copies the actual runtime fixtures and supplies a non-root-owned data directory. File-backed scenarios require a retained writable volume; process-local scenarios require a single long-lived process. See [full architecture](../../../ARCHITECTURE.md).
 
 ## Related Deep Dives
 
-- [conversation_lifecycle.md](L2/conversation_lifecycle.md) — Detailed bootstrapping and teardown timeline.
-- [transcript_pipeline.md](L2/transcript_pipeline.md) — Event mapping, UID remap, in-progress/completed segmentation.
-
-## Scenario 01 UI alignment (2026-10-21)
-
-`ScenarioShell` and `useScenarioUi` compose the entry, persistent identity, activity workspace, Inspector and Build panels around existing session bootstrap. `scenarios/presentation.ts` loads scenario-specific content. `ConversationComponent` reports actual activity/inspection events and uses the adopted transcript and Glass controls. Business views remain scenario-owned below the voice workspace. Tailwind 4/PostCSS, theme recipes and MiSans match scenario 01. `scenarios/runtime-profile.ts` displays the non-secret configured pipeline; keep it aligned with the invite route. Never treat browser fixtures as live RTC/tool acceptance.
+- [Lifecycle](L2/conversation_lifecycle.md)
+- [Tokens](L2/token_model.md)

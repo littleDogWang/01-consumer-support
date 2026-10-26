@@ -62,14 +62,14 @@ The upstream baseline is [AgoraIO-Conversational-AI/agent-quickstart-nextjs](htt
 
 | Surface | Source | Verification |
 | --- | --- | --- |
-| Product and support steps | `scenarios/02-consumer-support/product.ts` | pnpm run verify:scenario; verify the relevant acceptance case |
-| Sample orders | `scenarios/02-consumer-support/orders.json` | pnpm run verify:scenario; verify the relevant acceptance case |
-| Assistant behavior | `scenarios/02-consumer-support/config.ts` | pnpm run verify:scenario; verify the relevant acceptance case |
+| Product and support steps | `lib/consumer-support/product.ts` | pnpm run verify:scenario; verify the relevant acceptance case |
+| Sample orders | `lib/consumer-support/orders.json` | pnpm run verify:scenario; verify the relevant acceptance case |
+| Assistant behavior | `lib/agent-config.ts` | pnpm run verify:scenario; verify the relevant acceptance case |
 
-- `scenarios/index.ts`: default/tool prompt assembly.
-- `scenarios/tool-contracts.ts`: available REST tools and parameter/call scope.
+- `lib/agent-config.ts`: default/tool prompt assembly.
+- `lib/agent-tools.ts`: available REST tools and parameter/call scope.
 - `app/api/invite-agent/route.ts`: providers, turn detection and managed Agent lifecycle.
-- `scenarios/presentation.ts` and scenario presentation: visible identity, start action and developer paths.
+- `lib/presentation.ts` and scenario presentation: visible identity, start action and developer paths.
 - `components/ScenarioInspector.tsx`, `lib/inspection.ts`: reported session evidence. Preserve missing values and manual outcome provenance.
 
 ## Invariants

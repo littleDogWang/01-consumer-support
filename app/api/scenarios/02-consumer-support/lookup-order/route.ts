@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { lookupOrder } from '@/scenarios/02-consumer-support/orders';
+import { lookupOrder } from '@/lib/consumer-support/orders';
 
 export async function POST(request: Request) {
   try {

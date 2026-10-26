@@ -1,9 +1,9 @@
-import type { ScenarioConfig } from '../types';
+import type { ScenarioConfig } from '../types/agent-config';
 import {
   formatOrdersForPrompt,
   CONSUMER_SUPPORT_ORDER_FIXTURE_VERSION,
-} from './orders';
-import { ASTER_ADAPTER_SUPPORT } from './product';
+} from './consumer-support/orders';
+import { ASTER_ADAPTER_SUPPORT } from './consumer-support/product';
 
 export const config: ScenarioConfig = {
   id: '02-consumer-support',
@@ -14,3 +14,27 @@ export const config: ScenarioConfig = {
   greeting: "Hi, I can help with your Aster laptop power adapter. Is it not working, or is a part missing from a replacement?",
   fixtureSummary: `Inline fixture mode: lookup_order is not configured. The records below are fixed local examples, not live order-system data. Use only these records and follow the customer-facing language rules. Trim the order ID and compare it case-insensitively against an exact ID; do not infer partial matches. If no record matches, say there is no matching order record and coverage cannot be confirmed. Never claim that you called a tool or queried a live system.\nOrder fixture version ${CONSUMER_SUPPORT_ORDER_FIXTURE_VERSION}:\n${formatOrdersForPrompt()}`,
 };
+
+function formatScenarioPrompt(config: ScenarioConfig): string {
+  return `You are the ${config.role}
+
+# Goal and conversation flow
+${config.workflow}
+
+# Safety and truthfulness rules
+${config.guardrails}
+
+# Supported capabilities
+Only use the capabilities described in this scenario. Never claim that an external action, booking, update, payment, transfer, or record write succeeded unless a configured tool returned that result.
+${config.fixtureSummary ? `\n# Order data\n${config.fixtureSummary}` : ''}`;
+}
+
+export function getScenarioConfig(): ScenarioConfig { return config; }
+export function getScenarioPrompt(_scenarioId?: string, orderLookupEnabled = false): string {
+  return formatScenarioPrompt({
+    ...config,
+    fixtureSummary: orderLookupEnabled
+      ? 'Tool lookup mode: lookup_order is configured. Confirm the exact order ID, then call lookup_order before reporting any order, warranty, or replacement result. Use only successful tool response data, including replacement reference, status, expectedContents, and shippedContents when present. For missing records, missing fields, or tool timeouts, explain which details cannot be confirmed and recommend human support. Never infer a replacement from warranty or original delivery status. Do not fall back to remembered or inline sample orders after a failed lookup.'
+      : config.fixtureSummary,
+  });
+}

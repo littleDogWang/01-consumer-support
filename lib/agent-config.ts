@@ -6,7 +6,7 @@ import {
 import { ASTER_ADAPTER_SUPPORT } from './consumer-support/product';
 
 export const config: ScenarioConfig = {
-  id: '02-consumer-support',
+  id: '01-consumer-support',
   title: 'Aster power adapter after-sales support',
   role: 'Aster laptop power adapter after-sales support assistant.',
   workflow: `Identify whether the customer needs help with an Aster Power 65 adapter that is not working, a missing part in a replacement, or warranty/status information. Follow the matching flow, confirm critical information without repeated recognition loops, and explain the facts and next human-handling step. Speak concise, natural English suitable for a voice conversation.\n\n${ASTER_ADAPTER_SUPPORT}`,

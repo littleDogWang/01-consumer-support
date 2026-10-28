@@ -400,7 +400,7 @@ async function verifyInviteAgentSuccess(toolBaseUrl?: string) {
       assert(tools.length === 1, 'Tool mode should register only the read-only order lookup');
       const tool = tools[0];
       assert(tool.type === 'function' && tool.function?.name === 'lookup_order', 'Tool mode should register lookup_order');
-      assert(tool.server?.url === `${toolBaseUrl}/api/scenarios/02-consumer-support/lookup-order`, 'Lookup should use the configured server');
+      assert(tool.server?.url === `${toolBaseUrl}/api/scenarios/01-consumer-support/lookup-order`, 'Lookup should use the configured server');
       assert(tool.server?.method === 'POST', 'Lookup tool should use POST');
       assert(instructions.includes('Tool lookup mode:'), 'Tool mode should require actual tool results');
       assert(!/AG-100[123]|AST-R3001/.test(instructions), 'Tool mode should not expose inline orders or replacement records as a fallback');
@@ -426,13 +426,13 @@ async function verifyInviteAgentSuccess(toolBaseUrl?: string) {
 }
 
 async function verifyConsumerSupportLookup() {
-  const { POST: lookupOrder } = await import('../app/api/scenarios/02-consumer-support/lookup-order/route');
+  const { POST: lookupOrder } = await import('../app/api/scenarios/01-consumer-support/lookup-order/route');
   for (const [orderId, warrantyStatus] of [
     [' ag-1001 ', 'in_warranty'],
     ['AG-1002', 'expired'],
     [' ag-1003 ', 'in_warranty'],
   ]) {
-    const response = await lookupOrder(new Request('http://localhost:3000/api/scenarios/02-consumer-support/lookup-order', {
+    const response = await lookupOrder(new Request('http://localhost:3000/api/scenarios/01-consumer-support/lookup-order', {
       method: 'POST',
       body: JSON.stringify({ order_id: orderId }),
     }));
@@ -458,7 +458,7 @@ async function verifyConsumerSupportLookup() {
     [123, 400],
     [null, 400],
   ] as const) {
-    const response = await lookupOrder(new Request('http://localhost:3000/api/scenarios/02-consumer-support/lookup-order', {
+    const response = await lookupOrder(new Request('http://localhost:3000/api/scenarios/01-consumer-support/lookup-order', {
       method: 'POST',
       body: JSON.stringify({ order_id: orderId }),
     }));

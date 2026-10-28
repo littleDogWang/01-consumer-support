@@ -2,7 +2,7 @@
 
 Troubleshoot an adapter fault or explain a missing replacement part.
 
-[Try locally](#2-try-the-demo) · [Source on GitHub](https://github.com/littleDogWang/02-consumer-support) · [Build with AI](#build-with-ai)
+[Try locally](#2-try-the-demo) · [Source on GitHub](https://github.com/littleDogWang/01-consumer-support) · [Build with AI](#build-with-ai)
 
 TypeScript · Web · Next.js 16 / React 19 · Agora Conversational AI
 
@@ -85,8 +85,8 @@ Leave `TOP_TEN_SCENARIO_TOOL_BASE_URL` unset for the default conversation. To en
 From a terminal, clone this scenario rather than the generic starter:
 
 ```bash
-git clone https://github.com/littleDogWang/02-consumer-support.git
-cd 02-consumer-support
+git clone https://github.com/littleDogWang/01-consumer-support.git
+cd 01-consumer-support
 pnpm install --frozen-lockfile
 cp env.local.example .env.local
 ```
@@ -112,7 +112,7 @@ Open [http://localhost:3000](http://localhost:3000), choose **Start product supp
 
 ### Tools and result semantics
 
-`lookup_order` sends `order_id` to `POST /api/scenarios/02-consumer-support/lookup-order`. AG-1001 is in warranty, AG-1002 is expired, and AG-1003 has delivered replacement AST-R3001 with an expected wall cord missing from the shipped-contents record. The customer's received contents remain a separate statement.
+`lookup_order` sends `order_id` to `POST /api/scenarios/01-consumer-support/lookup-order`. AG-1001 is in warranty, AG-1002 is expired, and AG-1003 has delivered replacement AST-R3001 with an expected wall cord missing from the shipped-contents record. The customer's received contents remain a separate statement.
 
 The invite body contains `requester_id` and `channel_name`. The supplied browser already handles this startup sequence. See [the scenario guide](docs/scenario/README.md) for additional behavior and contracts.
 
@@ -143,7 +143,7 @@ After cloning this repository, paste the following into your coding agent from y
 ```text
 Implement the Aster Power Adapter Support recipe in my application.
 
-Read RECIPE.md in the cloned 02-consumer-support repository first, then inspect
+Read RECIPE.md in the cloned 01-consumer-support repository first, then inspect
 its scenario modules, tool contracts and invite route. Read docs/ai/RECIPE.md
 and AGENTS.md in that repository for integration constraints.
 
@@ -171,8 +171,8 @@ These commands describe the repository's supported scripts; they do not attest t
 ### Docker deployment
 
 ```bash
-docker build --build-arg NEXT_PUBLIC_AGORA_APP_ID=YOUR_AGORA_APP_ID -t 02-consumer-support:local .
-docker run --rm -p 3000:3000 --env-file .env.local 02-consumer-support:local
+docker build --build-arg NEXT_PUBLIC_AGORA_APP_ID=YOUR_AGORA_APP_ID -t 01-consumer-support:local .
+docker run --rm -p 3000:3000 --env-file .env.local 01-consumer-support:local
 ```
 
 Replace `YOUR_AGORA_APP_ID` with the public App ID used in `.env.local`. Next.js embeds that identifier in the browser bundle, so changing projects requires rebuilding the image. The App Certificate is supplied only at container runtime. A container restart does not preserve process memory. This image does not add a shared state service.

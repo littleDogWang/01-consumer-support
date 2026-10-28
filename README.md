@@ -16,8 +16,8 @@ Read the [eight-part recipe](RECIPE.md) for example conversations and business c
 ## Run It
 
 ```bash
-git clone https://github.com/littleDogWang/02-consumer-support.git
-cd 02-consumer-support
+git clone https://github.com/littleDogWang/01-consumer-support.git
+cd 01-consumer-support
 pnpm install --frozen-lockfile
 cp env.local.example .env.local
 ```
@@ -106,7 +106,7 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for topology, ownership and deployment de
 | Supply the exact order ID | Use inline records by default, or call lookup_order when configured. | Known warranty and replacement facts; unknown IDs stay unresolved. |
 | Confirm the received contents or check result | Explain the next human-handling step. | Guidance only, without a fabricated replacement submission. |
 
-`lookup_order` sends `order_id` to `POST /api/scenarios/02-consumer-support/lookup-order`. AG-1001 is in warranty, AG-1002 is expired, and AG-1003 has delivered replacement AST-R3001 with an expected wall cord missing from the shipped-contents record. The customer's received contents remain a separate statement.
+`lookup_order` sends `order_id` to `POST /api/scenarios/01-consumer-support/lookup-order`. AG-1001 is in warranty, AG-1002 is expired, and AG-1003 has delivered replacement AST-R3001 with an expected wall cord missing from the shipped-contents record. The customer's received contents remain a separate statement.
 
 The invite body contains `requester_id` and `channel_name`.
 
@@ -137,8 +137,8 @@ Native hosting runs `pnpm run build` and `pnpm run start` on the documented Node
 ### Docker
 
 ```bash
-docker build --build-arg NEXT_PUBLIC_AGORA_APP_ID=YOUR_AGORA_APP_ID -t 02-consumer-support:local .
-docker run --rm -p 3000:3000 --env-file .env.local 02-consumer-support:local
+docker build --build-arg NEXT_PUBLIC_AGORA_APP_ID=YOUR_AGORA_APP_ID -t 01-consumer-support:local .
+docker run --rm -p 3000:3000 --env-file .env.local 01-consumer-support:local
 ```
 
 Replace `YOUR_AGORA_APP_ID` with the public App ID used in `.env.local`. Next.js embeds that identifier in the browser bundle, so changing projects requires rebuilding the image. The App Certificate is supplied only at container runtime. A container restart does not preserve process memory. This image does not add a shared state service.

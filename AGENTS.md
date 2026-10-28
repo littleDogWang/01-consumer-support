@@ -1,6 +1,6 @@
 # Agent Development Guide
 
-This guide is for coding agents making changes in `02-consumer-support`.
+This guide is for coding agents making changes in `01-consumer-support`.
 
 
 ## U.S. scenario content
@@ -11,7 +11,7 @@ Use a United States setting for fictional business examples, UI copy, Agent cont
 
 Use English for repository content, including documentation, code comments, UI copy and examples. Keep future additions and edits free of Chinese text.
 
-## Scenario 02 runtime
+## Scenario 01 runtime
 
 This derivative uses the fictional Aster brand and supports only the Aster Note 15 laptop with its Aster Power 65 adapter set. Maintain adapter fault and missing-replacement-part flows in `lib/consumer-support/product.ts`, Agent behavior/greeting in `config.ts`, and fixed orders/replacement contents in `orders.json`. Default prompts use inline records. When the existing HTTP lookup tool is configured, omit inline records and require successful responses. Keep warranty, original delivery, replacement shipment status, expected/shipped contents, and customer reports separate. No warranty duration or repair price is defined. Stop unsafe powered checks and respect correction/accessibility requests and immediate human-help requests. No after-sales write, shipment, callback or actual transfer is implemented. Do not introduce MCP, external knowledge bases, or tunnels. Verify both invite modes, all three order records, and replacement contents; local checks do not replace live voice/RTC acceptance.
 

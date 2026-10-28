@@ -1,5 +1,5 @@
 {
-  "name": "02-consumer-support",
+  "name": "01-consumer-support",
   "version": "0.1.0",
   "description": "Troubleshoot an adapter fault or explain a missing replacement part.",
   "private": true,

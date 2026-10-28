@@ -24,6 +24,6 @@ export function getScenarioTools(_scenarioId: string, baseUrl = process.env.TOP_
   const stringProperty = { type: 'string' };
   const integerProperty = { type: 'integer' };
   return [
-        tool(origin, 'lookup_order', 'Look up an exact order, warranty status, and any replacement shipment reference, status, expected contents, and shipped contents.', 'POST', '/api/scenarios/02-consumer-support/lookup-order', { order_id: stringProperty }, ['order_id'], { order_id: '{{args.order_id}}' }),
+        tool(origin, 'lookup_order', 'Look up an exact order, warranty status, and any replacement shipment reference, status, expected contents, and shipped contents.', 'POST', '/api/scenarios/01-consumer-support/lookup-order', { order_id: stringProperty }, ['order_id'], { order_id: '{{args.order_id}}' }),
       ];
 }

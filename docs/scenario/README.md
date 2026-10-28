@@ -26,7 +26,7 @@ Coverage comes from the record, not a purchase-date calculation. No warranty dur
 
 By default, the prompt contains the fixed local records and registers no tool. `orders.ts` serializes optional replacement fields into each prompt record.
 
-The existing `POST /api/scenarios/02-consumer-support/lookup-order` accepts `{ "order_id": "AG-1003" }`. It trims whitespace and normalizes case before exact matching. Success returns `{ "order": ... }` with optional `replacement: { reference, status, expectedContents, shippedContents }`; unknown IDs return 404 and invalid IDs return 400. No state-changing operation is supported.
+The existing `POST /api/scenarios/01-consumer-support/lookup-order` accepts `{ "order_id": "AG-1003" }`. It trims whitespace and normalizes case before exact matching. Success returns `{ "order": ... }` with optional `replacement: { reference, status, expectedContents, shippedContents }`; unknown IDs return 404 and invalid IDs return 400. No state-changing operation is supported.
 
 An optional `TOP_TEN_SCENARIO_TOOL_BASE_URL` registers the read-only `lookup_order` HTTP tool. Set it only for an already cloud-reachable endpoint. Tool mode omits inline orders and replacement records; missing fields and failures remain unresolved without fixture fallback. Leave it unset for the default demo.
 
